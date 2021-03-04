@@ -500,8 +500,8 @@ function initChat(){
 }
 
 function initMastermind(uname){
+    socket.emit('game', 'mastermind');
     socket.emit('uname', uname);
-    socket.emit('game', 'mastermind');  //TODO: should be GameType.mastermind
     initSideBar(uname);
     initCanvas();
     sendButton = document.getElementById('sendButton')
@@ -544,5 +544,3 @@ function mouseDown(e){
     refresh();
 }
 
-
-loginPage();
