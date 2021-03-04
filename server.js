@@ -23,7 +23,7 @@ app.use('/css', (req,res)=>{
     res.sendFile(req.originalUrl, {root: './'});
 });
 
-app.use('/js', express.static(__dirname + '/js'));
+app.use('/client', express.static(__dirname + '/client'));
 
 app.get('/', function(req, res) {
     res.sendFile("index.html",{ root: './' });
