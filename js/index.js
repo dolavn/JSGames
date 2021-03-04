@@ -501,7 +501,7 @@ function initChat(){
 
 function initMastermind(uname){
     socket.emit('uname', uname);
-    socket.emit('game', 'mastermind');  //TODO: should be GameType.mastermind
+    socket.emit('gameType', 'mastermind');  
     initSideBar(uname);
     initCanvas();
     sendButton = document.getElementById('sendButton')

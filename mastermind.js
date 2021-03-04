@@ -94,6 +94,28 @@ function setCode(gameId, code, socket){
     }
 }
 
+function onCodeSubmitHandler(socket, user){
+    let gameId = users.getGameId(socket);
+    if(gameId==-1){
+        gameId = games.findGame();
+    }
+    let players = games.getGame(gameId)['players'];
+    let uname = users.getUname(socket);
+    user['uname'] = uname;
+    user['turns'] = 0;
+    users.setGameId(socket, gameId);
+    console.log('user ' + uname + ' was put in game ' + gameId);
+    if(players.length<2){
+        user['socket'] = socket;
+        players.push(user);
+    }
+    setCode(gameId, user['code'], socket);
+    games.getGame(gameId)['ready']++;
+    if(games.getGame(gameId)['ready']==2){
+        startMasterMindGame(gameId);
+    }
+}
+
 function startMasterMindGame(gameId){
     let players = games.getGame(gameId)['players'];
     for(var i=0;i<players.length;++i){
@@ -113,3 +135,4 @@ exports.getGuessHandler = getGuessHandler;
 exports.checkGameFinished = checkGameFinished;
 exports.resetGame = resetGame;
 exports.compare = compare;
+exports.onCodeSubmitHandler = onCodeSubmitHandler;
