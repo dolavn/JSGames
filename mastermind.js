@@ -97,7 +97,7 @@ function setCode(gameId, code, socket){
 function onCodeSubmitHandler(socket, user){
     let gameId = users.getGameId(socket);
     if(gameId==-1){
-        gameId = games.findGame();
+        gameId = games.findGameMastermind();
     }
     let players = games.getGame(gameId)['players'];
     let uname = users.getUname(socket);

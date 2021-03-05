@@ -3,14 +3,10 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const mastermind = require('./mastermind');
+const pong = require('./pong');
 const users = require('./users');
+const games = require('./games');
 const { type } = require('os');
-
-const GAME_TYPES = {
-	NONE: "none",
-	MASTERMIND: "mastermind",
-	PONG: "pong",
-}
 
 function createMasterMindHandlers(socket){
     console.log('creating handlers');
@@ -41,14 +37,17 @@ io.on('connection', (socket) => {
     users.broadcast('logged_in_users', users.getNames());
   });
   socket.on('uname', (user) => {
-    users.addUser({'name': user, 'socket': socket, 'gameId': -1, 'gameType': GAME_TYPES.NONE})
+    users.addUser({'name': user, 'socket': socket, 'gameId': -1, 'gameType': games.GAME_TYPES.NONE})
     users.broadcast('logged_in_users', users.getNames());
   });
   socket.on('gameType', (gameType) => {
       users.setGameType(socket, gameType);
-      console.log(gameType, GAME_TYPES.MASTERMIND);
-      if(gameType == GAME_TYPES.MASTERMIND){
+      console.log(gameType, games.GAME_TYPES.MASTERMIND);
+      if(gameType == games.GAME_TYPES.MASTERMIND){
         createMasterMindHandlers(socket);
+      }
+      if(gameType == games.GAME_TYPES.PONG){
+        pong.setupPongGame(socket);
       }
   });
   socket.on('chatMessage', (message)=>{

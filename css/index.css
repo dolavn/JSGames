@@ -160,6 +160,18 @@ hr {
   cursor: pointer;
 }
 
+.gameButton{
+  font-weight:bold;
+  color: white;
+  border-radius: 4px;
+  background-color: rgb(0, 20, 133);
+}
+
+.gameButton:hover{
+  color: white;
+  background-color: rgb(0, 47, 255);
+}
+
 #nameSendButton{
   font-weight:bold;
   border-radius: 4px;

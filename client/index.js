@@ -1,21 +1,12 @@
 import {initMastermind} from './mastermind.js';
+import {initPong} from './pong.js';
 
-const gameScreen = document.getElementById('gameScreen');
-
-const canvasHeight = 800;
-const canvasWidth = 1200;
 var socket = io();
 
 const MAX_UNAME = 12;
 
-const CHOOSE_NAME_TXT = 'הזן את שמך';
 const CONNECTED_USERS_TXT = 'משתמשים מחוברים';
-const WAITING_FOR_PLAYER_TXT = 'ממתין לשחקן נוסף';
-const SERVER_FULL_TXT = 'השרת מלא';
 const HELLO_TXT = 'שלום ';
-
-
-let canvas, ctx;
 
 export function showPopup(message){
     let notificationModal = document.getElementById("notificationModal");
@@ -42,6 +33,7 @@ function chooseGame(uname){
     });
     pongButton.addEventListener("click", function(){
         chooseGameModal.style.display = "none";
+        initPong(socket);
     });
 }
 
