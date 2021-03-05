@@ -68,6 +68,29 @@ function scoreGoal(game){
     }
 }
 
+function getBallNewSpeed(ballLocation, playerX, playerInd){
+    let anglesRanges = [[150, 30], [210, 330]];
+    let anglesRange = anglesRanges[playerInd]; 
+    let minAngle = anglesRange[0]; let maxAngle = anglesRange[1];
+    let x = ballLocation[0]; let relativeX = x-playerX;
+    let ballAngle = minAngle+relativeX*((maxAngle-minAngle)/PLAYER_WIDTH);
+    ballAngle = Math.PI*ballAngle/180;
+    return [2*Math.cos(ballAngle), 2*Math.sin(ballAngle)];
+}
+
+function checkCollisionWithPlayer(game){
+    let ballX = game.ball[0]; let ballY = game.ball[1];
+    let yArr = [PLAYER_A_Y, PLAYER_B_Y];
+    for(let i=0;i<2;++i){
+        let currX = game['locations'][i];
+        let currY = yArr[i];
+        if(ballX>=currX && ballX<=currX+PLAYER_WIDTH && ballY>=currY-10 && ballY<=currY+10){
+            let newSpeed = getBallNewSpeed(game.ball, currX, i);
+            game.ballSpeed = Array.from(newSpeed);
+        }
+    }
+}
+
 function checkCollisions(game){
     let ball = game['ball']; let ballX = ball[0]; let ballY = ball[1];
     if(ballX>X_BOUND || ballX<0){
@@ -76,14 +99,7 @@ function checkCollisions(game){
     if(ballY > Y_BOUND || ballY < 0){
         scoreGoal(game);
     }
-    let yArr = [PLAYER_A_Y, PLAYER_B_Y];
-    for(let i=0;i<2;++i){
-        let currX = game['locations'][i];
-        let currY = yArr[i];
-        if(ballX>=currX && ballX<=currX+PLAYER_WIDTH && ballY>=currY-10 && ballY<=currY+10){
-            game.ballSpeed[1] = -game.ballSpeed[1];
-        }
-    }
+    checkCollisionWithPlayer(game);
 }
 
 function moveBall(game){
