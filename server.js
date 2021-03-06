@@ -8,6 +8,11 @@ const users = require('./users');
 const games = require('./games');
 const { type } = require('os');
 
+let initFunctions = {
+  [games.GAME_TYPES.MASTERMIND]: createMasterMindHandlers,
+  [games.GAME_TYPES.PONG]: pong.setupPongGame
+};
+
 function createMasterMindHandlers(socket){
     console.log('creating handlers');
     socket.on('code', (user) => {
@@ -33,6 +38,9 @@ io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('disconnect', () => {
     console.log('user disconnected');
+    let gameId = users.getGameId(socket);
+    if(gameId==-1){return;}
+    games.handleDisconnect(gameId, socket);
     users.removeUser('socket', socket);
     users.broadcast('logged_in_users', users.getNames());
   });
@@ -42,13 +50,7 @@ io.on('connection', (socket) => {
   });
   socket.on('gameType', (gameType) => {
       users.setGameType(socket, gameType);
-      console.log(gameType, games.GAME_TYPES.MASTERMIND);
-      if(gameType == games.GAME_TYPES.MASTERMIND){
-        createMasterMindHandlers(socket);
-      }
-      if(gameType == games.GAME_TYPES.PONG){
-        pong.setupPongGame(socket);
-      }
+      initFunctions[gameType](socket);
   });
   socket.on('chatMessage', (message)=>{
     uname = users.getUname(socket);

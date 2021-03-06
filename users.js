@@ -56,7 +56,12 @@ function setGameId(socket, gameId){
 }
 
 function getGameId(socket){
-    return getUser('socket', socket)['gameId'];
+    let user = getUser('socket', socket);
+    if(user==null){
+        return -1;
+    }else{
+        return user.gameId;
+    }
 }
 
 function getNames(){

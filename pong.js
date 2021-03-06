@@ -1,3 +1,4 @@
+const { NOTIMP } = require('dns');
 const games = require('./games');
 const users = require('./users');
 const INIT_LOCATION = 50;
@@ -5,10 +6,23 @@ const X_BOUND = 1200;
 const Y_BOUND = 800;
 const PLAYER_SPEED = 20;
 const PLAYER_WIDTH = 150;
-const INIT_BALL_SPEED = [1.41, 1.41];
-const INIT_BALL_LOC = [500, 100];
+const BALL_SPEED = 2;
+const INIT_BALL_Y = Y_BOUND/2;
 const PLAYER_A_Y = 60;
 const PLAYER_B_Y = 740;
+
+const INIT_GAME = {'players': [], 'score': [], 'ball': [100, 100], 'ball_speed': [0, 0],
+ 'paused': true, 'pausingPlayer': null, 'locations': []}
+
+function handleDisconnect(gameId, disconnectedSocket){
+    let uname = users.getUname(disconnectedSocket);
+    let game = games.getGame(gameId); let sockets = game.sockets;
+    game.paused = true;
+    game.pausingPlayer = null;
+    for(let i=0;i<sockets.length;++i){
+        sockets[i].emit('disconnection', uname);
+    }
+}
 
 function emitGameDataToSocket(game, socket){
     socket.emit('gameData', {'ball': game['ball'], 'locations': game['locations']});
@@ -56,12 +70,30 @@ function addPlayerToGame(game, socket){
 
 function checkIfGameIsFull(game){return game.players.length==2;}
 
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateRandomSpeed(){
+    let angle = getRandomInt(0, 360);
+    angle = (Math.PI*angle)/180;
+    return [BALL_SPEED*Math.cos(angle), BALL_SPEED*Math.sin(angle)];
+}
+
+function generateRandomLocation(){
+    let x = getRandomInt(0, X_BOUND);
+    return [x, INIT_BALL_Y];
+}
+
 function scoreGoal(game){
     let ballY = game.ball[1];
     let ind = ballY>Y_BOUND?0:1;
     game.score[ind] = game.score[ind] + 1;
-    game.ball = Array.from(INIT_BALL_LOC);
-    game.ballSpeed = Array.from(INIT_BALL_SPEED);
+    game.ball = generateRandomLocation();
+    game.ballSpeed = generateRandomSpeed();
     for(let i=0;i<2;++i){
         let socket = game.players[i];
         socket.emit('score', game.score);
@@ -114,12 +146,13 @@ function mainGameLoop(game){
 }
 
 function startGame(game){
-    game['ballSpeed'] = Array.from(INIT_BALL_SPEED);
-    game['ball'] = Array.from(INIT_BALL_LOC);
+    game['ballSpeed'] = generateRandomSpeed();
+    game['ball'] = generateRandomLocation();
     game['paused'] = false;
     let playerNames = [users.getUname(game['players'][0]), users.getUname(game['players'][1])];
     for(let i=0;i<game['players'].length;++i){
         let socket = game['players'][i];
+        socket.emit('gameStarted');
         socket.emit('players', playerNames);
         socket.emit('score', [0, 0]);
         setInterval(()=>{mainGameLoop(game);}, 10);
@@ -128,9 +161,8 @@ function startGame(game){
 }
 
 function setupPongGame(socket){
-    let gameInd = games.findGamePong();
+    let gameInd = games.findGame(games.GAME_TYPES.PONG, INIT_GAME, socket, handleDisconnect);
     console.log('putting in game', gameInd);
-    users.setGameType(socket, games.GAME_TYPES.PONG);
     users.setGameId(socket, gameInd);
     let game = games.getGame(gameInd);
     addPlayerToGame(game, socket);

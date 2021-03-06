@@ -34,6 +34,7 @@ const VICTORY_TXT = 'כל הכבוד ניצחת!';
 const WON_TXT = 'ניצח!';
 const NO_MORE_TURNS_TXT = 'לא נותרו עוד תורות!';
 const WAITING_FOR_PLAYER_TXT = 'ממתין לשחקן נוסף';
+const DISCONNECTION = "התנתק";
 
 const codeLength = 4;
 const linesNum = 10;
@@ -291,6 +292,9 @@ function sendGuess(ind){
     socket.on('noMoreTurns', function(){
         showPopup(NO_MORE_TURNS_TXT);
         socket.off('noMoreTurns');
+    });
+    socket.on('disconnection', function(uname){
+        showPopup(uname + " " + DISCONNECTION);
     });
     socket.on('gameFinished', function(){
         showNewGameAlert();

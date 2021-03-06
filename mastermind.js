@@ -2,7 +2,16 @@ const games = require('./games');
 const users = require('./users');
 
 const MAX_TURNS = 9; 
+const INIT_GAME = {'players': [], 'finished': [], 'ended': false, 'ready': 0};
 
+function handleDisconnect(gameId, disconnectedSocket){
+    let uname = users.getUname(disconnectedSocket);
+    let game = games.getGame(gameId); let sockets = game.sockets;
+    game.ended = true;
+    for(let i=0;i<sockets.length;++i){
+        sockets[i].emit('disconnection', uname);
+    }
+}
 
 function compare(code1, code2){
     codeLength = code1.length;
@@ -29,7 +38,7 @@ function compare(code1, code2){
 }
 
 function resetGame(gameId){
-    let players = games.getGame(gameId)['players'];
+    let players = games.getGame(gameId).players;
     for(let i=0;i<2;++i){
         let socket = players[i]['socket'];
         socket.removeAllListeners('mousePress');
@@ -42,12 +51,15 @@ function resetGame(gameId){
 }
 
 function checkGameFinished(gameId){
-    if(games.getGame(gameId)['finished'].length == 2){
-        for(let i=0;i<games.getGame(gameId)['players'].length;++i){
-            let player = games.getGame(gameId)['players'][i];
-            let socket = player['socket'];   
-            socket.emit('gameFinished')
-            socket.on('newGameYes', function(){resetGame(gameId);});
+    let game = games.getGame(gameId);
+    if(game.finished.length == 2){
+        for(let i=0;i<game.players.length;++i){
+            let player = game.players[i];
+            let socket = player.socket;  
+            if(!game.ended){
+                socket.emit('gameFinished')
+                socket.on('newGameYes', function(){resetGame(gameId);});
+            } 
         }
     }
 }
@@ -72,8 +84,10 @@ function getGuessHandler(ind, sock, otherSock){
             }
         }
         sock.emit('result', result);
-        otherSock.emit('otherResult', result);
-        console.log('emitting to ' + users.getUname(otherSock));
+        if(!game.ended){
+            otherSock.emit('otherResult', result);
+            console.log('emitting to ' + users.getUname(otherSock));
+        }
     };
 }
 
@@ -97,7 +111,8 @@ function setCode(gameId, code, socket){
 function onCodeSubmitHandler(socket, user){
     let gameId = users.getGameId(socket);
     if(gameId==-1){
-        gameId = games.findGameMastermind();
+        gameId = games.findGame(games.GAME_TYPES.MASTERMIND, INIT_GAME, socket,
+                                handleDisconnect);
     }
     let players = games.getGame(gameId)['players'];
     let uname = users.getUname(socket);

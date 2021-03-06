@@ -17,11 +17,13 @@ const MESSAGE_X = 600;
 const MESSAGE_Y = 400;
 
 const GAME_PAUSED = "עצר את המשחק";
+const WAITING_FOR_OTHER_PLAYER = "ממתין לשחקן נוסף";
+const DISCONNECTED = "התנתק";
 
 let canvas,ctx;
 let socket;
 
-let players = ['a', 'a'];
+let players = ['', ''];
 let score = [0, 0];
 let message = "";
 let paused = false;
@@ -32,24 +34,20 @@ function initCanvasPong(){
     canvas.height = canvasHeight; canvas.width = canvasWidth;
 }
 
-function incScorePlayer(){playerScore++;}
-
-function incOpponetScore(){opponetScore++;}
-
-function setPlayerName(name){playerName = name;}
-
-function setOpponetName(name){opponetName = name;}
-
-function drawScore(){
-    ctx.font = SCORE_SIZE + "px Arial";
-    ctx.fillStyle = FORECOLOR;
-    ctx.fillText(players[0] + ' - ' + score[0], SCORE_X, SCORE_Y); 
-    ctx.fillText(players[1] + ' - ' + score[1], SCORE_X, SCORE_Y+(1.5*SCORE_SIZE)); 
+function drawMessage(){
     if(message!=""){
         ctx.font = MESSAGE_SIZE + "px Arial";
         ctx.fillStyle = FORECOLOR;
         ctx.fillText(message, MESSAGE_X, MESSAGE_Y); 
     }
+}
+
+function drawScore(){
+    if(players[0]==""){return;}
+    ctx.font = SCORE_SIZE + "px Arial";
+    ctx.fillStyle = FORECOLOR;
+    ctx.fillText(players[0] + ' - ' + score[0], SCORE_X, SCORE_Y); 
+    ctx.fillText(players[1] + ' - ' + score[1], SCORE_X, SCORE_Y+(1.5*SCORE_SIZE)); 
 }
 
 function printMessage(text){
@@ -68,6 +66,7 @@ function drawBoard(playerAX, playerBX, ballX, ballY){
     let circle = new Path2D();
     circle.arc(ballX, ballY, BALL_RADIUS, 0, 2 * Math.PI, false);
     ctx.fill(circle);
+    drawMessage();
     drawScore();
 }
 
@@ -102,5 +101,8 @@ export function initPong(sock){
     socket.on('score', (result)=>{score=result;})
     socket.on('pause', (player)=>{paused=true;printMessage(player + ' ' + GAME_PAUSED);});
     socket.on('unpause', (player)=>{paused=false;removeMessage();});
-    drawBoard(5, 5, 100, 100);
+    socket.on('gameStarted', ()=>{removeMessage();});
+    socket.on('disconnection', (uname)=>showPopup(uname + " " + DISCONNECTED))
+    printMessage(WAITING_FOR_OTHER_PLAYER);
+    drawBoard(-1000, -1000, -100, -100);
 }

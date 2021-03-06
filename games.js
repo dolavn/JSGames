@@ -1,5 +1,5 @@
 const users = require('./users');
-
+const MAX_PLAYERS_IN_GAME = 2;
 const GAME_TYPES = {
 	NONE: "none",
 	MASTERMIND: "mastermind",
@@ -10,7 +10,7 @@ let games = [];
 
 function findGame(gameType){
     for(let i=0;i<games.length;++i){
-        let game = games[i]; let players = game['players'];
+        let game = games[i]; let players = game.players;
         if(game['type'] != gameType){
             continue;
         }
@@ -20,22 +20,18 @@ function findGame(gameType){
     return -1;
 }
 
-function findGameMastermind(){
-    let gameInd = findGame(GAME_TYPES.MASTERMIND);
+function findGamePublic(gameType, args, socket, disconnectionHandler){
+    let gameInd = findGame(gameType);
     if(gameInd==-1){
-        games.push({'players': [], 'finished': [], 'ready': 0, 'type': GAME_TYPES.MASTERMIND});
+        game = Object.assign({}, args);
+        game['disconnectionHandler'] = disconnectionHandler;
+        game['type'] = gameType;
+        game['sockets'] = [socket];
+        game['max_players'] = MAX_PLAYERS_IN_GAME;
+        games.push(game);
         return games.length-1;
     }
-    return gameInd;
-}
-
-function findGamePong(){
-    let gameInd = findGame(GAME_TYPES.PONG);
-    if(gameInd==-1){
-        games.push({'players': [], 'score': [], 'ball': [100, 100], 'ball_speed': [0, 0], 'paused': true,
-                    'pausingPlayer': null, 'locations': [], 'type': GAME_TYPES.PONG});
-        return games.length-1;
-    }
+    getGame(gameInd).sockets.push(socket);
     return gameInd;  
 }
 
@@ -43,7 +39,29 @@ function getGame(gameId){
     return games[gameId];
 }
 
-exports.findGamePong = findGamePong;
-exports.findGameMastermind = findGameMastermind;
+function getSocketInd(gameId, socket){
+    let game = getGame(gameId);
+    for(let i=0;i<game.sockets.length;++i){
+        if(socket==game.sockets[i]){
+            return i;
+        }
+    }
+    throw "Socket not found";
+}
+
+function removeSocket(gameId, socketId){
+    let game = getGame(gameId);
+    game.sockets.splice(socketId, 1);
+}
+
+function handleDisconnect(gameId, socket){
+    let game = getGame(gameId);
+    let socketId = getSocketInd(gameId, socket);
+    removeSocket(gameId, socketId);
+    game.disconnectionHandler(gameId, socket);
+}
+
+exports.findGame = findGamePublic;
 exports.getGame = getGame;
+exports.handleDisconnect = handleDisconnect;
 exports.GAME_TYPES = GAME_TYPES;
