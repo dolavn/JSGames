@@ -38,11 +38,11 @@ io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('disconnect', () => {
     console.log('user disconnected');
+    users.removeUser('socket', socket);
+    users.broadcast('logged_in_users', users.getNames());
     let gameId = users.getGameId(socket);
     if(gameId==-1){return;}
     games.handleDisconnect(gameId, socket);
-    users.removeUser('socket', socket);
-    users.broadcast('logged_in_users', users.getNames());
   });
   socket.on('uname', (user) => {
     users.addUser({'name': user, 'socket': socket, 'gameId': -1, 'gameType': games.GAME_TYPES.NONE})

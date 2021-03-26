@@ -1,7 +1,29 @@
 import {initMastermind} from './mastermind.js';
 import {initPong} from './pong.js';
+import {initWordGuess} from './wordGuess.js';
+
+
 
 var socket = io();
+
+let jsGames = angular.module("jsGames", []);
+
+  
+jsGames.service('socketService', function() {
+    this.getSocket = function () {
+      return socket;
+    }
+});
+
+jsGames.controller("chooseGameController", function($scope) {  
+    $scope.title = "בחר משחק";
+    $scope.games = [
+        {desc:'בול פגיעה', id:'masterMindGameButton'},
+        {desc:'פונג', id:'pongGameButton'},
+        {desc:'איש תלוי', id:'guessWordGameButton'},
+      ];
+});
+
 
 const MAX_UNAME = 12;
 
@@ -27,6 +49,7 @@ function chooseGame(uname){
     chooseGameModal.style.display = "block";
     let masterMindButton = document.getElementById("masterMindGameButton");
     let pongButton = document.getElementById("pongGameButton");
+    let guessWordButton = document.getElementById("guessWordGameButton");
     masterMindButton.addEventListener("click", function(){
         chooseGameModal.style.display = "none";
         initMastermind(socket);
@@ -34,6 +57,10 @@ function chooseGame(uname){
     pongButton.addEventListener("click", function(){
         chooseGameModal.style.display = "none";
         initPong(socket);
+    });
+    guessWordButton.addEventListener("click", function(){
+        chooseGameModal.style.display = "none";
+        initWordGuess(socket);
     });
 }
 
@@ -72,7 +99,7 @@ function initSideBar(uname){
     document.getElementById('username').textContent = HELLO_TXT + truncateName(uname);
     document.getElementById('usersListHeader').textContent = CONNECTED_USERS_TXT;
     socket.on('logged_in_users', update_users);
-    initChat();
+    //initChat();
 }
 
 function sendMessage(msg){
