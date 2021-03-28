@@ -1,0 +1,11 @@
+<div ng-controller="chooseGameController">
+<div id="chooseGameModal" class="modal" modal="game"> 
+    <div class="modalContent" id="chooseGameModalContent">
+      <center>
+          {{title}}
+          <div data-ng-repeat="game in games"><button class="gameButton" ng-click="runGame(game.id)">{{game.desc}}</button><br/>
+          </div>         
+      </center>
+    </div>
+  </div>
+</div>

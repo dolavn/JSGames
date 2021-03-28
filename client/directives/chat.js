@@ -1,14 +1,6 @@
 
 var jsGames = angular.module("jsGames");
 
-jsGames.directive("chatArea", function() {
-  return {
-    restrict : "E",
-    controller: "chatAreaController",
-    templateUrl : "./client/directives/chat.html"
-  };
-});
-
 jsGames.directive("scrollBottom", function() {
     return {
         scope:{

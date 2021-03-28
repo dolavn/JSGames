@@ -8,22 +8,40 @@ var socket = io();
 
 let jsGames = angular.module("jsGames", []);
 
-  
+jsGames.service('modalsService', function() {
+    this.modals = {};
+
+    this.addModal = function(name, modal){
+        this.modals[name] = modal;
+    };
+    this.showModal = function(name){
+        this.modals[name].style.display = "block";
+    };
+    this.hideModal = function(name){
+        this.modals[name].style.display = "none";
+    };
+    this.isVisible = function(name){
+        return this.modals[name].style.display == "block";
+    }
+});
+
+jsGames.service('userData', function() {
+    this.uname = '';
+
+    this.setUname = function(uname){
+        this.uname = uname;
+    }
+
+    this.getUname = function(){
+        return this.uname;
+    }
+});
+
 jsGames.service('socketService', function() {
     this.getSocket = function () {
       return socket;
     }
 });
-
-jsGames.controller("chooseGameController", function($scope) {  
-    $scope.title = "בחר משחק";
-    $scope.games = [
-        {desc:'בול פגיעה', id:'masterMindGameButton'},
-        {desc:'פונג', id:'pongGameButton'},
-        {desc:'איש תלוי', id:'guessWordGameButton'},
-      ];
-});
-
 
 const MAX_UNAME = 12;
 
@@ -99,7 +117,6 @@ function initSideBar(uname){
     document.getElementById('username').textContent = HELLO_TXT + truncateName(uname);
     document.getElementById('usersListHeader').textContent = CONNECTED_USERS_TXT;
     socket.on('logged_in_users', update_users);
-    //initChat();
 }
 
 function sendMessage(msg){
@@ -143,4 +160,4 @@ function initChat(){
 }
 
 
-loginPage();
+//loginPage();

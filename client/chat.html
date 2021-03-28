@@ -1,6 +1,15 @@
+<div ng-controller="chatAreaController">
+<div id="username"><span ng-if="username!=''">שלום </span>{{username}}</div>
+<div id="usersListHeader"><span ng-if="username!=''" dir="rtl">משתמשים מחוברים</span></div>
+<hr>
+<div id="usersList" dir="rtl">
+    <div data-ng-repeat="user in users">{{user}}<br/></div>
+</div>
+<hr>
 <div id="chatArea" dir="rtl" scroll-bottom="messages">
     <div data-ng-repeat="message in messages"><b>{{message.uname}}:</b>{{message.message}}<br/></div>
 </div>
 <div id="chatInput" dir="rtl">כתוב הודעה:
 <input type="text" id="chatBox" ng-model="chatInput" ng-keyup="$event.keyCode == 13 ? sendMessage(chatInput) : null" >
 <button id="chatButton" ng-click="sendMessage(chatInput)">שלח</button></div>
+</div>

@@ -1,0 +1,16 @@
+<div ng-controller="loginController">
+    <div class="modal" modal="loginModal" visible="true">
+        <div class="modalContent">
+        <p dir="rtl">הזן את שמך:&nbsp;<input type="text" id="inputName"  ng-model="unameInput" 
+                                        focus="loginModal" ng-keyup="$event.keyCode == 13 ? setName(unameInput) : null" ></p>
+        <center><button id="nameSendButton" ng-click="setName(unameInput)">שלח</button></center>
+        </div>
+    </div>
+    <div class="modal" modal="alert">
+        <div class="modalContent">
+        <center>
+            שם לא חוקי <br/>
+            <button id="nameSendButton" ng-click="hideModal('alert')">סגור</button></center>
+        </div>
+    </div>
+</div>
