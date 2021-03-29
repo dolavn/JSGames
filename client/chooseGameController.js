@@ -5,7 +5,8 @@ import {initWordGuess} from './wordGuess.js';
 
 let jsGames = angular.module("jsGames");
 
-jsGames.controller("chooseGameController", function($scope, socketService, modalsService) { 
+jsGames.controller("chooseGameController", function($scope, socketService, modalsService,
+                                                    gameScreenService) { 
     $scope.title = "בחר משחק";
     $scope.games = [
         {desc:'בול פגיעה', id:0, func:initMastermind},
@@ -15,6 +16,6 @@ jsGames.controller("chooseGameController", function($scope, socketService, modal
     $scope.runGame = function(id){
         let socket = socketService.getSocket();
         modalsService.hideModal('game');
-        $scope.games[id].func(socket);
+        $scope.games[id].func(socket, gameScreenService, modalsService);
     };
 });

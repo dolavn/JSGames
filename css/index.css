@@ -215,3 +215,37 @@ hr {
   background-color: rgb(182, 4, 4);
   color: black;
 }
+
+
+.modalButtonNormal{
+  font-weight:bold;
+  border-radius: 4px;
+  background-color: rgb(119, 119, 119);
+  color:black;
+}
+
+.modalButtonNormal:hover{
+  background-color: rgb(206, 206, 206);
+  color: black;
+}
+
+.modalButtonClose{
+  font-weight:bold;
+  border-radius: 4px;
+  background-color: rgb(122, 0, 0);
+  color:white;
+}
+
+.modalButtonClose:hover{
+  background-color: rgb(182, 4, 4);
+  color: black;
+}
+.modalButtonAccept{
+  font-weight:bold;
+  border-radius: 4px;
+  background-color: rgb(24, 122, 0);
+}
+
+.modalButtonAccept:hover{
+  background-color: rgb(34, 165, 1);
+}

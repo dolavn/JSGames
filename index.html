@@ -1,47 +1,34 @@
-
-
-    <!doctype html>
-    <html>
-      <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-        <meta content="utf-8" http-equiv="encoding">
-        <title>JSGames</title>
-        <link href="./css/index.css" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-      </head>
-      <body ng-app="jsGames">
-        <div class="sidenav">
-          <div ng-include src="'client/chat.html'"></div>
+<!doctype html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>JSGames</title>
+    <link href="./css/index.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  </head>
+  <body ng-app="jsGames">
+    <div class="sidenav">
+      <div ng-include src="'client/chat.html'"></div>
+    </div>
+    <div id="gameScreen" class="h-100">
+        <div class="d-flex flex-column align-items-center justify-content-center h-100">
+          <canvas id="canvas" game-screen width="1200" height="800"></canvas>
         </div>
-        <div id="gameScreen" class="h-100">
-            <div class="d-flex flex-column align-items-center justify-content-center h-100">
-              <canvas id="canvas"></canvas>
-            </div>
-            <center><button id="sendButton">Select</button></center>
-        </div>
-        <div ng-include src="'client/login.html'"></div>
-        <div ng-include src="'client/chooseGame.html'"></div>
-          <div id="notificationModal" class="modal">
-            <div class="modalContent" id="notificationModalContent">
-              <span class="close" id="notificationModalClose">&times;</span>
-              <span id="notificationModalMessage" dir="rtl"></span>
-              <center><button id="closeNotificationModal">סגור</button></center>
-            </div>
-          </div>
-          <div id="newGameModal" class="modal">
-            <div class="modalContent" id="newGameModalContent">
-              <p dir="rtl">לשחק שוב?</p>
-              <center><button id="playAgainYes">כן</button>&nbsp;&nbsp;<button id="playAgainNo">לא</button></center>
-            </div>
-          </div>
-      </body>
-      <script src="./client/index.js" type="module"></script>
-      <script src="./client/angular.js"></script>
-      <script src="/socket.io/socket.io.js"></script>
-      <script src="./client/chatController.js" type="module"></script>
-      <script src="./client/loginController.js" type="module"></script>
-      <script src="./client/chooseGameController.js" type="module"></script>
-      <script src="./client/directives/chat.js" type="module"></script>
-      <script src="./client/directives/modal.js" type="module"></script>
-    </html>
+        <center><button id="sendButton">Select</button></center>
+    </div>
+    <div ng-include src="'client/login.html'"></div>
+    <div ng-include src="'client/chooseGame.html'"></div>
+    <div ng-include src="'client/mastermindModals.html'"></div>
+  </body>
+  <script src="./client/index.js" type="module"></script>
+  <script src="./client/angular.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./client/chatController.js" type="module"></script>
+  <script src="./client/loginController.js" type="module"></script>
+  <script src="./client/chooseGameController.js" type="module"></script>
+  <script src="./client/directives/chat.js" type="module"></script>
+  <script src="./client/directives/modal.js" type="module"></script>
+  <script src="./client/directives/gameScreen.js" type="module"></script>
+</html>
 

@@ -1,4 +1,4 @@
-import {showPopup} from './index.js';
+//import {showPopup} from './index.js';
 
 const colors = [{name:'red', hexCode: '#c20003'},
                 {name:'blue', hexCode: '#0400ff'},
@@ -7,12 +7,11 @@ const colors = [{name:'red', hexCode: '#c20003'},
                 {name:'orange', hexCode: '#ff8c00'},
                 {name:'purple', hexCode: '#9500ff'}]
 
-var rects = [];
-var labels = [];
 var lines = {};
 var gameStarted = false;
-let canvas, ctx;
 let socket;
+let modals;
+let gameScreen;
 
 const canvasHeight = 800;
 const canvasWidth = 1200;
@@ -46,25 +45,6 @@ const xOther = 200;
 const largeTextSize = 50;
 const smallTextSize = 30;
 
-function createLabel(x, y, text, color, size){   
-    labels.push({'x': x, 'y': y, 'text': text, 'color': color, 'size': size});
-}
-
-function createRect(x, y, width, height, color, id, onClick, border=false){
-    rects.push({'xMin': x, 'xMax': x+width, 'yMin': y, 'yMax': y+height, 'color': color, 'id': id, 'onClick': onClick,
-                'border': border});
-}
-
-function removeRect(ind){
-    if(ind>=rects.length){throw "Exceeds array";}
-    rects[ind] = null;
-}
-
-function removeLabel(ind){
-    if(ind>=labels.length){throw "Exceeds array";}
-    labels[ind] = null;
-}
-
 function createSelectionLine(lineInd, x, y, enabled=true){
     let initX = x;
     for(let i=0;i<codeLength;++i){
@@ -76,13 +56,14 @@ function createSelectionLine(lineInd, x, y, enabled=true){
                 }
                 let color = colors[selectedColor]['hexCode'];
                 lines[lineInd]['code'][codeInd] = selectedColor;
-                rects[rectInd]['color'] = color;
+                gameScreen.updateRect(rectInd, {'color': color});
                 socket.emit('mousePress', {'line': lineInd, 'rect': codeInd, 'color': color});
             }
         }
-        lines[lineInd]['rectInds'].push(rects.length);
-        createRect(initX+i*(rectMargin+rectSize), y, rectSize, rectSize, emptyColor, 'line' + lineInd + i,
-                   getSelectFunction(i, rects.length, enabled));
+        lines[lineInd]['rectInds'].push(gameScreen.getRectsNum());
+        gameScreen.createRect(initX+i*(rectMargin+rectSize), y, rectSize, 
+                              rectSize, emptyColor, 'line' + lineInd + i,
+                              getSelectFunction(i, gameScreen.getRectsNum(), enabled));
     }
 }
 
@@ -95,10 +76,10 @@ function createLine(lineInd, x, y, enabled=true){
     lines[lineInd] = {code: [-1, -1, -1, -1], rectInds:[], flagInds: []};
     let initX = x+codeLength*(rectSize+rectMargin);
     createSelectionLine(lineInd, x, y, enabled);
-    for(let i=0;i<codeLength;++i){
-        lines[lineInd]['flagInds'].push(rects.length);
-        createRect(initX+(Math.floor(i/2))*(rectSize/3), y+(i%2)*(rectSize/3), rectSize/4, rectSize/4, bgColor, 'flags' + lineInd + i,
-                   function(){}, true);
+    for(let i=0;i<codeLength;++i){ //Create flags
+        lines[lineInd]['flagInds'].push(gameScreen.getRectsNum());
+        gameScreen.createRect(initX+(Math.floor(i/2))*(rectSize/3), y+(i%2)*(rectSize/3),
+                              rectSize/4, rectSize/4, bgColor, 'flags' + lineInd + i, function(){}, true);
     }
     if(enabled){
         sendButton.onclick = function(){
@@ -109,51 +90,23 @@ function createLine(lineInd, x, y, enabled=true){
 
 function initColorPallette(){
     for(let index = 0;index<colors.length;++index){
-
         function getSelectFunction(val) {
             return function(){
-                rects[selectionRectInd]['color'] = colors[val]['hexCode'];
+                gameScreen.updateRect(selectionRectInd, {'color': colors[val]['hexCode']});
                 selectedColor = val;
             }
         }
 
-        createRect(rectMargin, rectMargin+(rectSize+rectMargin)*index, rectSize, rectSize,
-                   colors[index]['hexCode'], colors[index]['name'], getSelectFunction(index));        
+        gameScreen.createRect(rectMargin, rectMargin+(rectSize+rectMargin)*index,
+                              rectSize, rectSize, colors[index]['hexCode'],
+                              colors[index]['name'], getSelectFunction(index));        
     }
 }
 
 function initSelectionBox(){
-    selectionRectInd = rects.length;
-    createRect(selectionX, selectionY, selectionRect, selectionRect, emptyColor, 'selection', function(){});
-}
-
-function refresh(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    for(let ind=0;ind<rects.length;++ind){
-        if(!rects[ind]){continue;}
-        let x=rects[ind]['xMin']; let y=rects[ind]['yMin'];
-        let width=rects[ind]['xMax']-x; let height=rects[ind]['yMax']-y;
-        if(rects[ind]['color'] == null){
-            throw "Color is undefined";
-        }
-        ctx.fillStyle = rects[ind]['color'];
-        ctx.fillRect(x, y, width, height);
-        if(rects[ind]['border']){
-            ctx.strokeStyle="rgba(0,0,0,1)";
-            ctx.strokeRect(x,y,width,height);
-        }
-    }
-    for(let ind=0;ind<labels.length;++ind){
-        if(!labels[ind]){continue;}
-        let x=labels[ind]['x']; let y=labels[ind]['y']; 
-        let text=labels[ind]['text']; let color=labels[ind]['color'];
-        let size = labels[ind]['size'];
-        ctx.font = size + "px Arial";
-        ctx.fillStyle = color;
-        ctx.fillText(text, x, y); 
-    }
+    selectionRectInd = gameScreen.getRectsNum();
+    gameScreen.createRect(selectionX, selectionY, selectionRect,
+                          selectionRect, emptyColor, 'selection', function(){});
 }
 
 function compare(code1, code2){
@@ -187,17 +140,17 @@ function flagLine(lineInd, ordered, unordered){
     for(let i=0;i<codeLength;++i){
         if(ordered>0){
             ordered--;
-            rects[flagIndsArr[i]]['color'] = orderedColor;
+            gameScreen.updateRect(flagIndsArr[i], {'color': orderedColor});
             continue;
         }
         if(unordered>0){
             unordered--;
-            rects[flagIndsArr[i]]['color'] = unorderedColor;
+            gameScreen.updateRect(flagIndsArr[i], {'color': unorderedColor});
             continue;
         }
-        rects[flagIndsArr[i]]['color'] = bgColor;
+        gameScreen.updateRect(flagIndsArr[i], {'color': bgColor});
     }
-    refresh();
+    gameScreen.refresh();
 }
 
 function newGame(){
@@ -207,8 +160,8 @@ function newGame(){
         delete lines[line];
     }
     lines = {};
-    labels = [];
-    rects = [];
+    gameScreen.resetLabels();
+    gameScreen.resetRects();
     socket.removeAllListeners('mousePress');
     socket.removeAllListeners('otherResult');
     socket.removeAllListeners('otherVictory');
@@ -221,21 +174,24 @@ function newGame(){
     initColorPallette();
     initCanvasMastermind();
     enterCodeScreen();
-    refresh();
+    gameScreen.refresh();
+}
+
+function showPopup(text){
+    let modal = modals.getCustomModal("masterMindModal1");
+    modal.resetModal();
+    modal.setTitle(text);
+    modal.addButton("סגור", ()=>{modal.hideModal();}, "modalButtonClose");
+    modal.showModal();
 }
 
 function showNewGameAlert(){
-    let newGameModal = document.getElementById("newGameModal");
-    newGameModal.style.display = "block";
-    let yesButton = document.getElementById("playAgainYes");
-    let noButton = document.getElementById("playAgainNo");
-    yesButton.addEventListener("click", function(){
-        newGame();
-        newGameModal.style.display = "none";
-    });
-    noButton.addEventListener("click", function(){
-        newGameModal.style.display = "none";
-    });
+    let modal = modals.getCustomModal("masterMindModal2");
+    modal.resetModal();
+    modal.setTitle("לשחק שוב?");
+    modal.addButton("כן", ()=>{newGame();modal.hideModal();}, "modalButtonAccept");
+    modal.addButton("לא", ()=>{modal.hideModal();}, "modalButtonClose");
+    modal.showModal();
 }
 
 function code(){
@@ -253,7 +209,7 @@ function checkCode(code){
 function disableLine(ind){
     for(let i=0;i<lines[ind]['rectInds'].length;++i){
         let rectInd = lines[ind]['rectInds'][i];
-        rects[rectInd]['onClick'] = function(){};
+        gameScreen.updateRect(rectInd, {'onClick': function(){}});
     }
 }
 
@@ -269,11 +225,10 @@ function finishIteration(ind){
     };
 }
 
-
 function sendGuess(ind){
     code = lines[ind]['code'];
     if(code.includes(-1)){
-        alert(WRONG_CODE_TXT);
+        showPopup(WRONG_CODE_TXT);
         return;
     }
     socket.emit('guess', code);
@@ -282,7 +237,7 @@ function sendGuess(ind){
     socket.on('result', function(res){
         let ordered = res['ordered']; let unordered = res['unordered'];
         finishIterationLambda(ordered, unordered);
-        refresh();
+        gameScreen.refresh();
         socket.off('result');
     });
     socket.on('victory', function(){
@@ -304,17 +259,17 @@ function sendGuess(ind){
 function removeLine(lineid){
     let rects = lines[lineid]['rectInds'];
     for(let i=0;i<rects.length;++i){
-        removeRect(rects[i]);
+        gameScreen.removeRect(rects[i]);
     }
     rects = lines[lineid]['flagInds'];
     for(let i=0;i<rects.length;++i){
-        removeRect(rects[i]);
+        gameScreen.removeRect(rects[i]);
     }
 }
 
 function enterCodeScreen(){
-    enterCodeLabelInd = labels.length;
-    createLabel(xPlayer, 550, CHOOSE_CODE_TXT, 'black',largeTextSize);
+    enterCodeLabelInd = gameScreen.getLabelsNum();
+    gameScreen.createLabel(xPlayer, 550, CHOOSE_CODE_TXT, 'black',largeTextSize);
     createInputLine(xPlayer, yLineInit);
     sendButton.onclick = function(){
         sendCode();
@@ -331,7 +286,7 @@ function createOtherLine(lineInd){
             if(ordered<codeLength){
                 createOtherLine(lineInd+1);
             }
-            refresh();
+            gameScreen.refresh();
         }
     }
     createLine('other' + lineInd, xOther, yLineInit-(lineInd+1)*yLineMargin, false);
@@ -343,9 +298,10 @@ function createCodeLine(){
     createSelectionLine('code', xOther, yLineInit, false);
     console.log(lines['code']);
     for(let i=0;i<codeLength;++i){
-        rects[lines['code']['rectInds'][i]]['color'] = colors[lines['input']['code'][i]]['hexCode'];
+        gameScreen.updateRect(lines['code']['rectInds'][i],
+                              {'color': colors[lines['input']['code'][i]]['hexCode']});
     }
-    refresh();
+    gameScreen.refresh();
 }
 
 function startGame(otherPlayer){
@@ -353,46 +309,45 @@ function startGame(otherPlayer){
         throw "Game already started!";
     }
     gameStarted = true;
-    removeLabel(enterCodeLabelInd);
+    gameScreen.removeLabel(enterCodeLabelInd);
     createCodeLine();
     createLine(0, xPlayer, yLineInit-yLineMargin);
-    otherPlayerLabelInd = labels.length;
-    createLabel(xOther+(codeLength/2)*(rectSize+rectMargin), nameY, otherPlayer, 'black', smallTextSize);
+    otherPlayerLabelInd = gameScreen.getLabelsNum();
+    gameScreen.createLabel(xOther+(codeLength/2)*(rectSize+rectMargin), 
+                           nameY, otherPlayer, 'black', smallTextSize);
     createOtherLine(0);
     socket.on('mousePress', (params)=>{
         let color = params['color']; let lineInd = 'other' + params['line'];
         let rectInd = lines[lineInd]['rectInds'][params['rect']];
-        rects[rectInd]['color'] = color;
-        refresh();
+        gameScreen.updateRect(rectInd, {'color': color});
+        gameScreen.refresh();
     });
     socket.on('otherVictory', function(name){
         showPopup(name + ' ' + WON_TXT);
         socket.off('otherVictory');
     });
-    refresh();
+    gameScreen.refresh();
 }
 
 function initCanvasMastermind(){
-    canvas = document.getElementById('canvas');
-    ctx = canvas.getContext('2d');    
-    canvas.height = canvasHeight; canvas.width = canvasWidth;
     initColorPallette();
     initSelectionBox();
 }
 
 function sendCode(){
     if(!checkCode(lines['input']['code'])){
-        alert(WRONG_CODE_TXT);
+        //alert(WRONG_CODE_TXT);
+        showPopup(WRONG_CODE_TXT);
         return;                
     }
     sendButton.onClick = ()=>{};
     socket.emit('code', {'code': lines['input']['code']});
     removeLine('input');
-    labels[enterCodeLabelInd]['text'] = WAITING_FOR_PLAYER_TXT;
-    refresh();
+    gameScreen.updateLabel(enterCodeLabelInd, {'text': WAITING_FOR_PLAYER_TXT});
+    gameScreen.refresh();
     socket.on('serverFull', function(name){
-        labels[enterCodeLabelInd]['text'] = SERVER_FULL_TXT;
-        refresh();
+        gameScreen.updateLabel(enterCodeLabelInd, {'text': SERVER_FULL_TXT});
+        gameScreen.refresh();
     });
     socket.on('startGame', function(name){
         startGame(name);
@@ -401,46 +356,13 @@ function sendCode(){
 }
 
 
-export function initMastermind(sock){
+export function initMastermind(sock, gameScreenService, modalsService){
     socket = sock;
+    gameScreen = gameScreenService;
+    modals = modalsService;
     socket.emit('gameType', 'mastermind');  
     initCanvasMastermind();
     sendButton = document.getElementById('sendButton')
     enterCodeScreen();
-    document.addEventListener('mousedown', mouseDown);
-    refresh();
-}
-
-
-function getCursorPosition(event) {
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    if(x<0 || x>canvasWidth || y<0 || y>canvasHeight){
-        return null;
-    }
-    return {x: x, y: y}
-}
-
-function checkClick(x, y){
-    for(let ind=0;ind<rects.length;++ind){
-        if(!rects[ind]){continue;}
-        let xMin = rects[ind]['xMin'];
-        let xMax = rects[ind]['xMax'];
-        let yMin = rects[ind]['yMin'];
-        let yMax = rects[ind]['yMax'];
-        if(xMin<=x && x<=xMax && yMin<=y && y<=yMax){
-            rects[ind]['onClick']();
-        }
-    }
-}
-
-function mouseDown(e){
-    let coords = getCursorPosition(e);
-    if(coords!=null){
-        let x = coords['x'];
-        let y = coords['y'];
-        checkClick(x, y);
-    }
-    refresh();
+    gameScreen.refresh();
 }

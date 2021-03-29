@@ -14,6 +14,7 @@ jsGames.controller("loginController", function($scope, userData, socketService,
             modalsService.showModal('game');
         }
     }
+
     $scope.hideModal = function(name){
         modalsService.hideModal(name)
     }

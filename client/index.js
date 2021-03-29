@@ -4,16 +4,21 @@ import {initWordGuess} from './wordGuess.js';
 
 
 
-var socket = io();
-
 let jsGames = angular.module("jsGames", []);
 
 jsGames.service('modalsService', function() {
     this.modals = {};
-
+    this.customModals = {};
     this.addModal = function(name, modal){
+        console.log(name);
         this.modals[name] = modal;
     };
+    this.addCustomModal = function(name, modal){
+        this.modals[name] = modal;
+    };
+    this.getCustomModal = function(name){
+        return this.modals[name];
+    }
     this.showModal = function(name){
         this.modals[name].style.display = "block";
     };
@@ -38,6 +43,8 @@ jsGames.service('userData', function() {
 });
 
 jsGames.service('socketService', function() {
+    var socket = io();
+
     this.getSocket = function () {
       return socket;
     }
