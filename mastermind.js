@@ -4,6 +4,10 @@ const users = require('./users');
 const MAX_TURNS = 9; 
 const INIT_GAME = {'players': [], 'finished': [], 'ended': false, 'ready': 0};
 
+function clone(a) {
+    return JSON.parse(JSON.stringify(a));
+ }
+
 function handleDisconnect(gameId, disconnectedSocket){
     let uname = users.getUname(disconnectedSocket);
     let game = games.getGame(gameId); let sockets = game.sockets;
@@ -110,8 +114,10 @@ function setCode(gameId, code, socket){
 
 function onCodeSubmitHandler(socket, user){
     let gameId = users.getGameId(socket);
+    console.log('gameId is ', gameId);
     if(gameId==-1){
-        gameId = games.findGame(games.GAME_TYPES.MASTERMIND, INIT_GAME, socket,
+        let game = clone(INIT_GAME);
+        gameId = games.findGame(games.GAME_TYPES.MASTERMIND, game, socket,
                                 handleDisconnect);
     }
     let players = games.getGame(gameId)['players'];
@@ -123,6 +129,7 @@ function onCodeSubmitHandler(socket, user){
     if(players.length<2){
         user['socket'] = socket;
         players.push(user);
+        console.log('pushing player to game ', gameId);
     }
     setCode(gameId, user['code'], socket);
     games.getGame(gameId)['ready']++;

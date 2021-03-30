@@ -336,7 +336,6 @@ function initCanvasMastermind(){
 
 function sendCode(){
     if(!checkCode(lines['input']['code'])){
-        //alert(WRONG_CODE_TXT);
         showPopup(WRONG_CODE_TXT);
         return;                
     }
