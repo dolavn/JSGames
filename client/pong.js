@@ -15,7 +15,7 @@ const GAME_PAUSED = "עצר את המשחק";
 const WAITING_FOR_OTHER_PLAYER = "ממתין לשחקן נוסף";
 const DISCONNECTED = "התנתק";
 
-let canvas,ctx;
+let ctx;
 let socket;
 
 let players = ['', ''];
@@ -29,10 +29,10 @@ let paused = false;
 let playerInd = -1;
 let xBound, yBound, playerAY, playerBY, playerWidth, playerHeight, playerSpeed, ballRadius, loopInterval;
 
-function initCanvasPong(){
-    canvas = document.getElementById('canvas');
-    ctx = canvas.getContext('2d');    
-    canvas.height = yBound; canvas.width = xBound;
+function initCanvasPong(gameScreen){
+    ctx = gameScreen.getContext();    
+    gameScreen.setWidth(xBound);
+    gameScreen.setHeight(yBound);
 }
 
 function drawMessage(){
@@ -58,9 +58,9 @@ function printMessage(text){
 function removeMessage(){message="";}
 
 function drawBoard(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, xBound, yBound);
     ctx.fillStyle = BG_COLOR;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, xBound, yBound);
     ctx.fillStyle = FORECOLOR;
     ctx.fillRect(playerALoc, playerAY, playerWidth, playerHeight);
     ctx.fillRect(playerBLoc, playerBY, playerWidth, playerHeight);
@@ -124,14 +124,14 @@ function initConstants(constants){
     loopInterval = constants.loopInterval;
 }
 
-export function initPong(sock){
+export function initPong(sock, gameScreenService, modalsService){
     socket = sock;
     socket.emit('gameType', 'pong');  
     let sendButton = document.getElementById('sendButton');
     sendButton.style.display = "none";
     socket.on('gameConstants', (constants)=>{
         initConstants(constants);
-        initCanvasPong();
+        initCanvasPong(gameScreenService);
         initListeners();
         printMessage(WAITING_FOR_OTHER_PLAYER);
         drawBoard();

@@ -58,11 +58,23 @@ jsGames.service('gameScreenService', function() {
 
     this.resetRects = function(){
         this.rects = [];
-    }
+    };
 
     this.resetLabels = function(){
         this.labels = [];
-    }
+    };
+
+    this.setWidth = function(width){
+        this.canvas.width = width;
+    };
+
+    this.setHeight = function(height){
+        this.canvas.height = height;
+    };
+
+   this.getContext = function(){ //TODO: Maybe change to support drawing with pong.
+       return this.context;
+   };
 
     this.refresh = function(){
         let context = this.context; let canvas=this.canvas; let rects=this.rects;
