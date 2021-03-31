@@ -17,6 +17,7 @@
         </div>
         <center><button id="sendButton">Select</button></center>
     </div>
+    <div ng-include src="'client/wordGuess.html'"></div>
     <div ng-include src="'client/login.html'"></div>
     <div ng-include src="'client/chooseGame.html'"></div>
     <div ng-include src="'client/mastermindModals.html'"></div>
@@ -25,6 +26,7 @@
   <script src="./client/angular.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="./client/chatController.js" type="module"></script>
+  <script src="./client/wordGuess.js" type="module"></script>
   <script src="./client/loginController.js" type="module"></script>
   <script src="./client/chooseGameController.js" type="module"></script>
   <script src="./client/directives/chat.js" type="module"></script>

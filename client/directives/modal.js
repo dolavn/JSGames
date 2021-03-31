@@ -30,7 +30,6 @@ jsGames.directive("modal", ['modalsService', function(modals) {
             title: "=",
         },
         link: function(scope, element, attr){
-            console.log(attr.modal, scope);
             modals.addModal(attr.modal, element[0]);
             if(attr.visible && attr.visible!="false"){
                 modals.showModal(attr.modal);
@@ -55,11 +54,12 @@ jsGames.directive("modal", ['modalsService', function(modals) {
                 $scope.title = "";
                 $scope.inputs= {};
                 $scope.buttons = [];
-                $scope.$apply();
+            };
+            $scope.addInput = function(key, desc, value){
+                $scope.inputs[key] = {'desc': desc, 'value': value};
             };
             $scope.showModal = function(){
                 $scope.element.style.display = "block";
-                $scope.$apply();
             };
             $scope.onClick = function(ind){
                 $scope.buttons[ind].action();
@@ -70,11 +70,9 @@ jsGames.directive("modal", ['modalsService', function(modals) {
             $scope.addButton = function(text, action, buttonClass){
                 $scope.buttons.push({text: text, action: action,
                                      class: buttonClass});
-                $scope.$apply();
             };
             $scope.setTitle = function(newTitle){
                 $scope.title = newTitle;
-                $scope.$apply();
             };
         },
         scope:{

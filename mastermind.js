@@ -4,10 +4,6 @@ const users = require('./users');
 const MAX_TURNS = 9; 
 const INIT_GAME = {'players': [], 'finished': [], 'ended': false, 'ready': 0};
 
-function clone(a) {
-    return JSON.parse(JSON.stringify(a));
- }
-
 function handleDisconnect(gameId, disconnectedSocket){
     let uname = users.getUname(disconnectedSocket);
     let game = games.getGame(gameId); let sockets = game.sockets;
@@ -116,7 +112,7 @@ function onCodeSubmitHandler(socket, user){
     let gameId = users.getGameId(socket);
     console.log('gameId is ', gameId);
     if(gameId==-1){
-        let game = clone(INIT_GAME);
+        let game = games.clone(INIT_GAME);
         gameId = games.findGame(games.GAME_TYPES.MASTERMIND, game, socket,
                                 handleDisconnect);
     }

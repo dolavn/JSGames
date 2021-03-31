@@ -182,7 +182,8 @@ function startGame(game){
 }
 
 function setupPongGame(socket){
-    let gameInd = games.findGame(games.GAME_TYPES.PONG, INIT_GAME, socket, handleDisconnect);
+    let gameInd = games.findGame(games.GAME_TYPES.PONG, games.clone(INIT_GAME),
+                                 socket, handleDisconnect);
     console.log('putting in game', gameInd);
     users.setGameId(socket, gameInd);
     let game = games.getGame(gameInd);

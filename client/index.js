@@ -1,6 +1,5 @@
 import {initMastermind} from './mastermind.js';
 import {initPong} from './pong.js';
-import {initWordGuess} from './wordGuess.js';
 
 
 
@@ -68,6 +67,7 @@ export function showPopup(message){
     notificationModal.addEventListener("click", closeLambda);
 }
 
+/*
 function chooseGame(uname){
     socket.emit('uname', uname);
     let chooseGameModal = document.getElementById("chooseGameModal");
@@ -88,6 +88,7 @@ function chooseGame(uname){
         initWordGuess(socket);
     });
 }
+*/
 
 function loginPage(){
     let loginModal = document.getElementById("loginModal");

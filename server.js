@@ -4,13 +4,15 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const mastermind = require('./mastermind');
 const pong = require('./pong');
+const wordGuess = require('./wordGuess');
 const users = require('./users');
 const games = require('./games');
 const { type } = require('os');
 
 let initFunctions = {
   [games.GAME_TYPES.MASTERMIND]: createMasterMindHandlers,
-  [games.GAME_TYPES.PONG]: pong.setupPongGame
+  [games.GAME_TYPES.PONG]: pong.setupPongGame,
+  [games.GAME_TYPES.WORD_GUESS]: wordGuess.setupWordGuessGame,
 };
 
 function createMasterMindHandlers(socket){

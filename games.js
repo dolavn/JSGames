@@ -1,16 +1,23 @@
 const users = require('./users');
+
 const MAX_PLAYERS_IN_GAME = 2;
 const GAME_TYPES = {
 	NONE: "none",
 	MASTERMIND: "mastermind",
 	PONG: "pong",
+    WORD_GUESS: "wordGuess",
 }
 
 let games = [];
 
+function clone(a) {
+    return JSON.parse(JSON.stringify(a));
+ }
+
 function findGame(gameType){
     for(let i=0;i<games.length;++i){
-        let game = games[i]; let players = game.players;
+        //todo: perhaps change to sockets?
+        let game = games[i]; let players = game.players; 
         if(game['type'] != gameType){
             continue;
         }
@@ -64,4 +71,5 @@ function handleDisconnect(gameId, socket){
 exports.findGame = findGamePublic;
 exports.getGame = getGame;
 exports.handleDisconnect = handleDisconnect;
+exports.clone = clone;
 exports.GAME_TYPES = GAME_TYPES;

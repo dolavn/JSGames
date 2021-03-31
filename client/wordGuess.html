@@ -1,0 +1,22 @@
+<custom-modal name="wordGuessModal1"></custom-modal>
+<custom-modal name="wordGuessModal2"></custom-modal>
+<div ng-controller="wordGuessController">
+    <div ng-if="started==true">
+        <center>
+            <table dir="rtl">
+                <tr ng-repeat="row in rowArray track by $index">
+                    <td ng-repeat="letter in row track by $index">
+                        {{letter}}
+                    </td>
+                </tr>
+            </table>
+            <table dir="rtl">
+                <tr ng-repeat="row in alphabetRows track by $index">
+                    <td ng-repeat="letter in row track by $index">
+                        <button class="modalButtonNormal">{{letter}}</button>
+                    </td>
+                </tr>                
+            </table>
+        </center>
+    </div>
+</div>
