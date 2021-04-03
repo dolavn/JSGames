@@ -67,8 +67,8 @@ jsGames.controller("wordGuessController", function($scope, socketService,
                 });
     $scope.resetScope = function(){
         $scope.gameState.started=false; $scope.gameState.waiting=true;
-        $scope.gameAreas[0] = {hiddenWord: [], rowArray: [], playerName: '', turnsLeft: 0};
-        $scope.gameAreas[1] = {hiddenWord: [], rowArray: [], playerName: '', turnsLeft: 0};
+        $scope.gameAreas[0] = {hiddenWord: [], clue: '', rowArray: [], playerName: '', turnsLeft: 0};
+        $scope.gameAreas[1] = {hiddenWord: [], clue: '', rowArray: [], playerName: '', turnsLeft: 0};
         $scope.pressed = [];
     };
     $scope.showPopup = function(text){
@@ -188,8 +188,10 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         modal.resetModal();
         modal.setTitle("בחר את המילה");
         modal.addInput('word', 'מילה', '');
+        modal.addInput('clue', 'רמז', '');
         modal.addButton('שלח', ()=>{
-            socket.emit('word', modal.getInput('word'));
+            socket.emit('word', {'word': modal.getInput('word'),
+                                 'clue': modal.getInput('clue')});
         }, 'modalButtonAccept');
         return modal;
     };

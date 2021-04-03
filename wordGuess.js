@@ -23,7 +23,7 @@ const GAME_STATUS = {
 }
 const INIT_GAME = {'players': [], 'ready': 0, 'wantNewGame': 0};
 const INIT_PLAYER = {'word': '', 'hiddenWord': [], 'socket': null, 'lettersLeft': -1,
-                     'turnsLeft': MAX_TURNS, status: GAME_STATUS.PLAYING};
+                     'clue': '', 'turnsLeft': MAX_TURNS, status: GAME_STATUS.PLAYING};
 
 
 function emitGameParams(socket){
