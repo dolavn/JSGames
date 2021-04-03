@@ -13,7 +13,10 @@ jsGames.controller("chatAreaController", function($scope, socketService,
     $scope.users = [];
     $scope.username = '';
     $scope.$watch(function(){return userData.getUname();},
-                  function(){$scope.username = userData.getUname();});
+                  function(){
+                      $scope.username = userData.getUname();
+                      $scope.chatInput = "";
+                    });
     socket.off('chatMessage');
     socket.on('logged_in_users', (users)=>{$scope.users = users; $scope.$apply();});
     socket.on('chatMessage', (msgTuple)=>{
@@ -22,8 +25,10 @@ jsGames.controller("chatAreaController", function($scope, socketService,
         $scope.$apply();
     });
 
-    $scope.sendMessage = function(message){
-        $scope.chatInput = "";
-        socket.emit('chatMessage', message);
+    $scope.sendMessage = function(){
+        if($scope.chatInput!=""){
+            socket.emit('chatMessage', $scope.chatInput);
+            $scope.chatInput = "";
+        }
     }
 });

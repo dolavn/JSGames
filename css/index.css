@@ -1,7 +1,7 @@
  /* The sidebar menu */
 .sidenav {
   height: 100%; /* Full-height: remove this if you want "auto" height */
-  width: 280px; /* Set the width of the sidebar */
+  width: 12%; /* Set the width of the sidebar */
   position: fixed; /* Fixed Sidebar (stay in place on scroll) */
   z-index: 1; /* Stay on top */
   top: 0; /* Stay at the top */
@@ -248,4 +248,61 @@ hr {
 
 .modalButtonAccept:hover{
   background-color: rgb(34, 165, 1);
+}
+
+.wordGuess{
+  margin-right: 14%;
+  display: block;
+}
+
+.wordGuessTable tr{
+  font-size:36px;
+}
+
+.wordGuessTable td{
+  width:45px;
+  height:45px;
+  border: 1px solid black;
+  text-align:center;
+  position: absoulte;
+}
+
+.wordGuessMessage {
+  text-align:center;
+  font-size:40px;
+}
+
+.wordGuessButton {
+  font-size:24px;
+  font-weight:bold;
+  border-radius: 4px;
+  background-color: rgb(160, 160, 160);
+}
+
+.wordGuessButton:hover {
+  font-size:24px;
+  font-weight:bold;
+  border-radius: 4px;
+  background-color: rgb(240, 240, 240);
+}
+
+.wordGuessImage{
+  width:500px;
+  height:500px;
+}
+
+.wordGuessArea{
+  border: black 1px;
+  border-style: solid;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.wordGuessImageContainer {
+  overflow: hidden;
+  margin: 5px;
+}
+
+.wordGuessImageContainer > img {
+  margin-top: -150px;
 }

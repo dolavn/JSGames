@@ -1,0 +1,25 @@
+<div class="wordGuessArea">
+    <div class="wordGuessMessage">
+        {{gameArea.playerName}}
+    </div>
+    <div class="wordGuessImageContainer">
+        <img class="wordGuessImage" ng-src="{{getImage(gameArea.turnsLeft)}}">
+    </div>
+    <table dir="rtl" class="wordGuessTable">
+        <tr ng-repeat="row in gameArea.rowArray track by $index">
+            <td ng-repeat="letter in row track by $index">
+                {{letter}}
+            </td>
+        </tr>
+    </table>
+    <table dir="rtl" ng-show="user">
+        <tr ng-repeat="row in alphabetRows track by $index">
+            <td ng-repeat="letter in row track by $index">
+                <button class="wordGuessButton" ng-click="buttonPress(letter)"
+                data-ng-disabled="checkEnabled(letter)">
+                    {{letter}}
+                </button>
+            </td>
+        </tr>                
+    </table>
+</div>

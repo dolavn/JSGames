@@ -1,22 +1,14 @@
 <custom-modal name="wordGuessModal1"></custom-modal>
 <custom-modal name="wordGuessModal2"></custom-modal>
-<div ng-controller="wordGuessController">
-    <div ng-if="started==true">
+
+<div ng-controller="wordGuessController" class="wordGuess">
+    <div class="wordGuessMessage" ng-if="gameState.waiting==true">
+        ממתין לשחקן נוסף
+    </div>
+    <div ng-if="gameState.started==true">
         <center>
-            <table dir="rtl">
-                <tr ng-repeat="row in rowArray track by $index">
-                    <td ng-repeat="letter in row track by $index">
-                        {{letter}}
-                    </td>
-                </tr>
-            </table>
-            <table dir="rtl">
-                <tr ng-repeat="row in alphabetRows track by $index">
-                    <td ng-repeat="letter in row track by $index">
-                        <button class="modalButtonNormal">{{letter}}</button>
-                    </td>
-                </tr>                
-            </table>
+            <word-guess-area game-area="gameAreas[0]" user="true"></word-guess-area>
+            <word-guess-area game-area="gameAreas[1]"></word-guess-area>
         </center>
     </div>
 </div>
