@@ -106,7 +106,6 @@ function getOtherPlayer(gameId, socket){
 function isGameFinished(gameId){
     let players = games.getGame(gameId).players;
     for(let i=0;i<players.length;++i){
-        console.log(i, players[i].status);
         if(players[i].status == GAME_STATUS.PLAYING){return false;}
     }
     return true;
@@ -143,7 +142,7 @@ function updatePlayerStatus(player, otherPlayer, socket, otherSocket){
     }
     if(player.turnsLeft==0){
         player.status = GAME_STATUS.LOST;
-        socket.emit('defeat');
+        socket.emit('defeat', otherPlayer.word);
         otherSocket.emit('otherDefeat', users.getUname(socket));
     }
 }
@@ -154,6 +153,12 @@ function resetPlayer(player){
     player.lettersLeft = -1;
     player.turnsLeft = MAX_TURNS;
     player.status = GAME_STATUS.PLAYING;
+}
+
+function removeListeners(socket){
+    socket.removeAllListeners('word');
+    socket.removeAllListeners('newGameYes');
+    socket.removeAllListeners('letterChoice');
 }
 
 function resetGame(gameId){
@@ -167,8 +172,10 @@ function resetGame(gameId){
             let player = players[i];
             let socket = player.socket;
             socket.emit('resetGame');
+            removeListeners(socket);
             resetPlayer(player);
             emitGameParams(socket);
+            socket.on('word', (text)=>{handleWord(gameId, socket, text);});
         }
     }
 }

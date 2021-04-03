@@ -5,7 +5,7 @@ const MUST_BREAK = 25;
 const WON_TXT = "ניצח";
 const LOST_TXT = "הפסיד";
 const YOU_WON_TXT = "כל הכבוד ניצחת!";
-const YOU_LOST_TXT = "לצערנו הפסדת";
+const YOU_LOST_TXT = "לצערנו הפסדת המילה היתה ";
 const LINE_DELIMETER = '-';
 const BREAK_TYPE = {
 	NONE: 0,
@@ -111,43 +111,53 @@ jsGames.controller("wordGuessController", function($scope, socketService,
 
     $scope.setupHandlers = function(){
         let socket = socketService.getSocket();
+        socket.off('queryAnswer');
         socket.on('queryAnswer', (answer)=>{
             $scope.handleQuery(answer, 0);
             $scope.$apply();
         });
+        socket.off('otherQueryAnswer');
         socket.on('otherQueryAnswer', (answer)=>{
             $scope.handleQuery(answer, 1);
             $scope.$apply();
         }); 
+        socket.off('wrong');
         socket.on('wrong', ()=>{
             $scope.handleWrong(0);
             $scope.$apply();
         });
+        socket.off('otherWrong');
         socket.on('otherWrong', ()=>{
             $scope.handleWrong(1);
             $scope.$apply();
         });
+        socket.off('victory');
         socket.on('victory', ()=>{
             $scope.showPopup(YOU_WON_TXT);
             $scope.$apply();
         });
-        socket.on('defeat', ()=>{
-            $scope.showPopup(YOU_LOST_TXT);
+        socket.off('defeat');
+        socket.on('defeat', (word)=>{
+            $scope.showPopup(YOU_LOST_TXT + word);
             $scope.$apply();
         });
+        socket.off('otherVictory');
         socket.on('otherVictory', (name)=>{
             $scope.showPopup(name + ' ' + WON_TXT);
             $scope.$apply();
         });
+        socket.off('otherDefeat');
         socket.on('otherDefeat', (name)=>{
             $scope.showPopup(name + ' ' + LOST_TXT);
             $scope.$apply();
         });
+        socket.off('newGame');
         socket.on('newGame', ()=>{
             let modal = $scope.getNewGameModal();
             modal.showModal();
             $scope.$apply();
         });
+        socket.off('resetGame');
         socket.on('resetGame', ()=>{
             $scope.resetScope();
             $scope.$apply();
@@ -206,12 +216,10 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         socket.emit('letterChoice', letter);
         $scope.pressed.push(letter);
     };
-    
-    $scope.initGame = function(args){
-        args.gameScreen.setWidth(0);
-        args.gameScreen.setHeight(0);
+
+    $scope.setupFirstListener = function(){
         let socket = socketService.getSocket();
-        socket.emit('gameType', 'wordGuess');
+        socket.off('gameParams');
         socket.on('gameParams', (params)=>{
             $scope.setParams(params);
             let modal = $scope.createWordChooseModal();
@@ -224,5 +232,13 @@ jsGames.controller("wordGuessController", function($scope, socketService,
             modal.showModal();
             $scope.$apply();
         });
+    }
+    
+    $scope.initGame = function(args){
+        args.gameScreen.setWidth(0);
+        args.gameScreen.setHeight(0);
+        let socket = socketService.getSocket();
+        socket.emit('gameType', 'wordGuess');
+        $scope.setupFirstListener();
     };
 });
