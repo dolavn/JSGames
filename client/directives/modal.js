@@ -74,6 +74,9 @@ jsGames.directive("modal", ['modalsService', function(modals) {
             $scope.setTitle = function(newTitle){
                 $scope.title = newTitle;
             };
+            $scope.updateScope = function(){
+                $scope.$apply();
+            };
         },
         scope:{
             name: "=",

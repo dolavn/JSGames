@@ -1,5 +1,3 @@
-//import {showPopup} from './index.js';
-
 const colors = [{name:'red', hexCode: '#c20003'},
                 {name:'blue', hexCode: '#0400ff'},
                 {name:'green', hexCode: '#129e00'},
@@ -183,6 +181,7 @@ function showPopup(text){
     modal.setTitle(text);
     modal.addButton("סגור", ()=>{modal.hideModal();}, "modalButtonClose");
     modal.showModal();
+    modal.updateScope();
 }
 
 function showNewGameAlert(){
@@ -192,6 +191,7 @@ function showNewGameAlert(){
     modal.addButton("כן", ()=>{newGame();modal.hideModal();}, "modalButtonAccept");
     modal.addButton("לא", ()=>{modal.hideModal();}, "modalButtonClose");
     modal.showModal();
+    modal.updateScope();
 }
 
 function code(){
