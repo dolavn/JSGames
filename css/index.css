@@ -306,3 +306,8 @@ hr {
 .wordGuessImageContainer > img {
   margin-top: -150px;
 }
+
+.wordGuessClue{
+  text-align:center;
+  font-size:25px;
+}

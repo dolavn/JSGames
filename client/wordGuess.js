@@ -164,17 +164,18 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         });
     }
 
-    $scope.initGameArea = function(ind, hiddenWord, playerName, turnsLeft){
+    $scope.initGameArea = function(ind, hiddenWord, clue, playerName, turnsLeft){
         $scope.gameAreas[ind].hiddenWord = hiddenWord;
+        $scope.gameAreas[ind].clue = clue;
         $scope.gameAreas[ind].rowArray = splitToRows(hiddenWord);
         $scope.gameAreas[ind].playerName = playerName;
         $scope.gameAreas[ind].turnsLeft = turnsLeft;
     };
 
     $scope.startGame = function(gameData){
-        $scope.initGameArea(0, gameData.otherHiddenWord, userData.getUname(),
-                            $scope.turnsLeft);
-        $scope.initGameArea(1, gameData.yourHiddenWord, gameData.otherName,
+        $scope.initGameArea(0, gameData.otherHiddenWord, gameData.otherClue,
+                            userData.getUname(),  $scope.turnsLeft);
+        $scope.initGameArea(1, gameData.yourHiddenWord, null, gameData.otherName,
                             $scope.turnsLeft);
         $scope.alphabetRows = splitToRows($scope.alphabet);
         $scope.gameState.waiting = false;

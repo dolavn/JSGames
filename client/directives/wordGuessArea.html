@@ -2,6 +2,9 @@
     <div class="wordGuessMessage">
         {{gameArea.playerName}}
     </div>
+    <div class="wordGuessClue" ng-show="user">
+        רמז:{{gameArea.clue}}
+    </div>
     <div class="wordGuessImageContainer">
         <img class="wordGuessImage" ng-src="{{getImage(gameArea.turnsLeft)}}">
     </div>

@@ -64,11 +64,12 @@ function getHiddenWord(word){
     return {'hiddenWord': hiddenWord, 'hiddenLettersNum': hiddenLettersNum};
 }
 
-function setWord(gameId, socket, word){
+function setWord(gameId, socket, word, clue){
     let players = games.getGame(gameId).players;
     for(let i=0;i<players.length;++i){
         if(players[i].socket == socket){
             players[i].word = word;
+            players[i].clue = clue;
             let wordData = getHiddenWord(word);
             players[i].hiddenWord = wordData.hiddenWord;
             players[i].lettersLeft = wordData.hiddenLettersNum;
@@ -220,22 +221,24 @@ function startGame(gameId){
         let socket = players[i].socket;
         let otherSocket = players[1-i].socket;
         let otherHiddenWord = players[1-i].hiddenWord;
+        let otherClue = players[1-i].clue;
         let yourHiddenWord = players[i].hiddenWord;
         socket.emit('startGame', {'otherHiddenWord': otherHiddenWord,
+                                  'otherClue': otherClue,
                                   'otherName': users.getUname(otherSocket),
                                   'yourHiddenWord': yourHiddenWord});
         socket.on('letterChoice', getButtonHandler(gameId, socket));
     }
 }
 
-function handleWord(gameId, socket, word){
+function handleWord(gameId, socket, wordData){
     let game = games.getGame(gameId);
-    if(checkInput(socket, word)){
+    if(checkInput(socket, wordData.word)){
         let players = game.players;
         if(players.length<2){
             players.push(initPlayer(socket));
         }
-        setWord(gameId, socket, word);
+        setWord(gameId, socket, wordData.word, wordData.clue);
         game.ready++;
         if(game.ready==2){
             startGame(gameId);
@@ -249,7 +252,7 @@ function setupWordGuessGame(socket){
     console.log('putting in game', gameInd);
     users.setGameId(socket, gameInd);
     emitGameParams(socket);
-    socket.on('word', (text)=>{handleWord(gameInd, socket, text);});
+    socket.on('word', (wordData)=>{handleWord(gameInd, socket, wordData);});
 }
 
 exports.setupWordGuessGame = setupWordGuessGame;
