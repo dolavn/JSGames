@@ -19,7 +19,7 @@
         <tr ng-repeat="row in alphabetRows track by $index">
             <td ng-repeat="letter in row track by $index">
                 <button class="wordGuessButton" ng-click="buttonPress(letter)"
-                data-ng-disabled="checkEnabled(letter)">
+                data-ng-disabled="checkDisabled(letter)">
                     {{letter}}
                 </button>
             </td>

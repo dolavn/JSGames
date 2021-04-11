@@ -8,7 +8,7 @@ const FINITE_DICT = {'מ':'ם',
                      'פ':'ף',
                      'צ':'ץ',
                      'כ':'ך'};
-const FREE_ALPHABET = ' ?!.,';
+const FREE_ALPHABET = ' ?!.,\'';
 const HIDDEN_CHAR = 'X';
 
 const NO_WORD = 'עליך להזין את המשפט';

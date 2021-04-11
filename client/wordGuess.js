@@ -61,6 +61,7 @@ jsGames.controller("wordGuessController", function($scope, socketService,
     $scope.delimeters = '';
     $scope.alphabetRows = [];
     $scope.modalsInitialized = 0;
+    $scope.defeated = false;
     $scope.turnsLeft = 0;
     $scope.$on('wordGuessStarted',
                function(e, args){
@@ -81,6 +82,7 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         $scope.gameAreas[0] = {hiddenWord: [], clue: '', rowArray: [], playerName: '', turnsLeft: 0};
         $scope.gameAreas[1] = {hiddenWord: [], clue: '', rowArray: [], playerName: '', turnsLeft: 0};
         $scope.pressed = [];
+        $scope.defeated = false;
     };
     $scope.showPopup = function(text){
         let modal = modalsService.getCustomModal('wordGuessModal2');
@@ -149,6 +151,7 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         });
         socket.off('defeat');
         socket.on('defeat', (word)=>{
+            $scope.defeated = true;
             $scope.showPopup(YOU_LOST_TXT + word);
             $scope.$apply();
         });
@@ -209,8 +212,9 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         return modal;
     };
 
-    $scope.checkEnabled = function(letter){
-        return $scope.pressed.includes(letter);
+    $scope.checkDisabled = function(letter){
+        console.log(letter, $scope.defeated);
+        return $scope.defeated || $scope.pressed.includes(letter);
     };
 
     $scope.handleWrong = function(gameAreaInd){

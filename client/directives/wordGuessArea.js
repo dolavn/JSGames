@@ -12,8 +12,8 @@ jsGames.directive("wordGuessArea", [function() {
             scope.buttonPress = function(letter){
                 return scope.$parent.buttonPress(letter);
             };
-            scope.checkEnabled = function(letter){
-                return scope.$parent.checkEnabled(letter);
+            scope.checkDisabled = function(letter){
+                return scope.$parent.checkDisabled(letter);
             };
             scope.getImage = function(turnsLeft){
                 return scope.$parent.getImage(turnsLeft);
