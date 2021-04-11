@@ -16,9 +16,27 @@ jsGames.controller("chooseGameController", function($rootScope, $scope, socketSe
                                                        'modals': modalsService});
         }},
       ];
+    $scope.registerChooseGameModal = function(){
+        let modal = modalsService.getCustomModal('chooseGame');
+        modal.setTitle($scope.title);
+        for(let i=0;i<$scope.games.length;++i){
+            modal.addButton($scope.games[i].desc,
+                            ()=>{$scope.runGame($scope.games[i].id)},
+                            'gameButton');
+        }
+        modal.showModal();
+    };
+    $scope.createChooseGameModal = function(){
+        modalsService.addCustomModal('chooseGame', $scope.registerChooseGameModal);
+    };
+    $scope.$on('chooseGame',
+      function(e, args){
+          $scope.createChooseGameModal();
+    });
     $scope.runGame = function(id){
         let socket = socketService.getSocket();
-        modalsService.hideModal('game');
+        modalsService.hideModal('chooseGame');
+        modalsService.destroyModal('chooseGame');
         $scope.games[id].func(socket, gameScreenService, modalsService);
     };
 });

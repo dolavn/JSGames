@@ -60,11 +60,22 @@ jsGames.controller("wordGuessController", function($scope, socketService,
     $scope.hiddenChar = null;
     $scope.delimeters = '';
     $scope.alphabetRows = [];
+    $scope.modalsInitialized = 0;
     $scope.turnsLeft = 0;
     $scope.$on('wordGuessStarted',
                function(e, args){
-                   $scope.initGame(args);
+                   $scope.initModals(args);
                 });
+    $scope.registerModal = function(args){
+        $scope.modalsInitialized++;
+        if($scope.modalsInitialized==2){
+            $scope.initGame(args);
+        }
+    };
+    $scope.initModals = function(args){
+        modalsService.addCustomModal('wordGuessModal1', ()=>{$scope.registerModal(args);});
+        modalsService.addCustomModal('wordGuessModal2', ()=>{$scope.registerModal(args);}); 
+    };
     $scope.resetScope = function(){
         $scope.gameState.started=false; $scope.gameState.waiting=true;
         $scope.gameAreas[0] = {hiddenWord: [], clue: '', rowArray: [], playerName: '', turnsLeft: 0};
@@ -190,6 +201,7 @@ jsGames.controller("wordGuessController", function($scope, socketService,
         modal.setTitle("בחר את המילה");
         modal.addInput('word', 'מילה', '');
         modal.addInput('clue', 'רמז', '');
+        modal.setFocus('word');
         modal.addButton('שלח', ()=>{
             socket.emit('word', {'word': modal.getInput('word'),
                                  'clue': modal.getInput('clue')});

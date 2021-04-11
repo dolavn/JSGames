@@ -4,7 +4,8 @@
         <p dir="rtl">{{title}}</p> <br/>
         
         <div data-ng-repeat="(key, input) in inputs">
-            <p dir="rtl">{{input.desc}}:&nbsp;<input type="text" ng-model="input.value"></p>
+            <p dir="rtl">{{input.desc}}:&nbsp;<input type="text" ng-model="input.value"
+                                               focus="input.focus"></p>
         </div>
         <span data-ng-repeat="button in buttons">
             <button class="{{button.class}}" ng-click="onClick($index)">{{button.text}}</button>&nbsp;&nbsp;

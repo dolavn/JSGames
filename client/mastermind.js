@@ -354,14 +354,29 @@ function sendCode(){
     });
 }
 
-
-export function initMastermind(sock, gameScreenService, modalsService){
-    socket = sock;
-    gameScreen = gameScreenService;
-    modals = modalsService;
+function startMasterMind(){
     socket.emit('gameType', 'mastermind');  
     initCanvasMastermind();
     sendButton = document.getElementById('sendButton')
     enterCodeScreen();
     gameScreen.refresh();
+}
+
+function initModals(){
+    let registeredModals = 0;
+    function registerModal(){
+        registeredModals++;
+        if(registeredModals==2){
+            startMasterMind();
+        }
+    }
+    modals.addCustomModal('masterMindModal1', registerModal);
+    modals.addCustomModal('masterMindModal2', registerModal); 
+}
+
+export function initMastermind(sock, gameScreenService, modalsService){
+    socket = sock;
+    gameScreen = gameScreenService;
+    modals = modalsService;
+    initModals();
 }

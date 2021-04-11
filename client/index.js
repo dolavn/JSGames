@@ -5,27 +5,47 @@ import {initPong} from './pong.js';
 
 let jsGames = angular.module("jsGames", []);
 
+//TODO: Change all modals to customModals.
 jsGames.service('modalsService', function() {
+    this.modalsList = {};
     this.modals = {};
-    this.customModals = {};
     this.addModal = function(name, modal){
-        console.log(name);
         this.modals[name] = modal;
     };
-    this.addCustomModal = function(name, modal){
+    this.getModalsList = function(){
+        return Object.keys(this.modalsList);
+    };
+    this.destroyModal = function(name){
+        if(!(name in this.modalsList)){
+            throw "unknown modal";
+        }
+        delete this.modalsList['name'];
+        delete this.modals['name'];
+    };
+    this.addCustomModal = function(name, onCreation){
+        this.modalsList[name] = onCreation;
+    };
+    this.registerCustomModal = function(name, modal){
         this.modals[name] = modal;
+        if(!(name in this.modalsList)){
+            throw "Unknown modal";
+        }
+        this.modalsList[name]();
     };
     this.getCustomModal = function(name){
         return this.modals[name];
     }
     this.showModal = function(name){
-        this.modals[name].style.display = "block";
+        this.modals[name].showModal();
     };
     this.hideModal = function(name){
-        this.modals[name].style.display = "none";
+        this.modals[name].hideModal();
     };
     this.isVisible = function(name){
-        return this.modals[name].style.display == "block";
+        if(name in this.modals){ 
+            return this.modals[name].isVisible();
+        }
+        throw "Unknown modal";
     }
 });
 
