@@ -7,16 +7,13 @@ jsGames.directive("focus", ['modalsService', function(modals) {
         },
 
         link: function(scope, element, attr){
-            scope.$watchCollection(()=>{
-                let focus = (scope.focus != null)?scope.focus:attr.focus;
-                /*console.log('element:', element);
-                console.log('actual focus', focus);
-                */if(focus){
-                    return modals.getCustomModal(focus).isVisible();
-                }else{return false;}
-            }, function(){
-                element[0].focus();
-            });
+            if(scope.focus){
+                scope.$watchCollection(()=>{
+                    return modals.getCustomModal(scope.focus).isVisible();
+                }, function(){
+                    element[0].focus();
+                });
+            }
         }
     };
   }]);
@@ -52,8 +49,6 @@ jsGames.controller("modalsController", function($scope, modalsService){
 });
 
 
-
-
   jsGames.directive("customModal", ['modalsService', function(modals) {
     return {
         controller: function($scope){
@@ -61,7 +56,7 @@ jsGames.controller("modalsController", function($scope, modalsService){
             $scope.element = null;
             $scope.inputs= {};
             $scope.buttons = [];
-            
+            $scope.defaultButton = 0;
             $scope.hideModal = function(){
                 $scope.element.style.display = "none";
             };
@@ -85,6 +80,12 @@ jsGames.controller("modalsController", function($scope, modalsService){
             $scope.isVisible = function(){
                 return $scope.element.style.display == "block";
             };
+            $scope.setDefaultButton = function(ind){
+                if(ind<0 || ind>=$scope.buttons.length){
+                    throw "Invalid index for default button";
+                }
+                $scope.defaultButton = ind;
+            };
             $scope.onClick = function(ind){
                 $scope.buttons[ind].action();
             };
@@ -94,6 +95,7 @@ jsGames.controller("modalsController", function($scope, modalsService){
             $scope.addButton = function(text, action, buttonClass){
                 $scope.buttons.push({text: text, action: action,
                                      class: buttonClass});
+                return $scope.buttons.length-1;
             };
             $scope.setTitle = function(newTitle){
                 $scope.title = newTitle;
@@ -112,12 +114,18 @@ jsGames.controller("modalsController", function($scope, modalsService){
         templateUrl: "./client/directives/modal.html",
         link: function(scope, element, attr){
             let modal = element[0].children[0];
-            console.log(scope);
             scope.element = modal;
             modals.registerCustomModal(scope.name, scope);
             if(attr.visible && attr.visible!="false"){
                 scope.showModal();
-            }
+            }        
+            element.bind("keyup", function (event) {
+                if(event.which === 13) {
+                    if(scope.defaultButton!=-1){
+                        scope.onClick(scope.defaultButton);
+                    }
+                }
+            });
         }
     };
   }]);

@@ -33,7 +33,8 @@ jsGames.controller("loginController", function($rootScope, $scope, userData,
         modal.setTitle("הזן את שמך");
         modal.addInput('name', 'שם משתמש', '');
         modal.setFocus('name');
-        modal.addButton('שלח', $scope.setName, 'modalButtonAccept');
+        let sendButtonInd = modal.addButton('שלח', $scope.setName, 'modalButtonAccept');
+        modal.setDefaultButton(sendButtonInd);
         $scope.createdModals++;
         if($scope.createdModals==2){$scope.showLoginModal();}
     };
@@ -41,9 +42,10 @@ jsGames.controller("loginController", function($rootScope, $scope, userData,
     $scope.registerLoginAlertModal = function(){
         let modal = modalsService.getCustomModal('loginAlert');
         modal.setTitle("שם לא חוקי");
-        modal.addButton('אישור', ()=>{
+        let okButtonInd = modal.addButton('אישור', ()=>{
             modal.hideModal();
         }, 'modalButtonAccept');
+        modal.setDefaultButton(okButtonInd);
         $scope.createdModals++;
         if($scope.createdModals==2){$scope.showLoginModal();}
     };
