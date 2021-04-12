@@ -7,6 +7,7 @@ jsGames.service('gameScreenService', function() {
     this.rects = [];
     this.labels = [];
     this.bgColor = '#ccc8c8';
+    this.lastMousePos = {'x': 0, 'y': 0};
     this.setGameScreen = function(screen, width, height){
         if(this.gameScreen){
             throw "Already has a screen set!";
@@ -21,9 +22,9 @@ jsGames.service('gameScreenService', function() {
                           'size': size});
     };
 
-    this.createRect = function(x, y, width, height, color, id, onClick, border=false){
+    this.createRect = function(x, y, width, height, color, id, onClick, border=false, hover=null){
         this.rects.push({'xMin': x, 'xMax': x+width, 'yMin': y, 'yMax': y+height, 'color': color, 'id': id, 'onClick': onClick,
-                         'border': border});
+                         'border': border, 'hover': hover, 'actualColor': color});
     };
 
     this.getRectsNum = function(){
@@ -48,6 +49,7 @@ jsGames.service('gameScreenService', function() {
         for(let key in dict){
             this.rects[ind][key] = dict[key];
         }
+        this.checkHover(this.lastMousePos.x, this.lastMousePos.y);
     };
 
     this.updateLabel = function(ind, dict){
@@ -86,10 +88,10 @@ jsGames.service('gameScreenService', function() {
             if(!rects[ind]){continue;}
             let x=rects[ind]['xMin']; let y=rects[ind]['yMin'];
             let width=rects[ind]['xMax']-x; let height=rects[ind]['yMax']-y;
-            if(rects[ind]['color'] == null){
+            if(rects[ind].actualColor == null){
                 throw "Color is undefined";
             }
-            context.fillStyle = rects[ind]['color'];
+            context.fillStyle = rects[ind].actualColor;
             context.fillRect(x, y, width, height);
             if(rects[ind]['border']){
                 context.strokeStyle="rgba(0,0,0,1)";
@@ -116,7 +118,7 @@ jsGames.service('gameScreenService', function() {
         return {x: x, y: y}
     };
 
-    this.checkClick = function(x, y){
+    this.checkCollisionWithRect = function(x, y, onCollision, onNoCollision){
         let rects = this.rects;
         for(let ind=0;ind<rects.length;++ind){
             if(!rects[ind]){continue;}
@@ -125,9 +127,21 @@ jsGames.service('gameScreenService', function() {
             let yMin = rects[ind]['yMin'];
             let yMax = rects[ind]['yMax'];
             if(xMin<=x && x<=xMax && yMin<=y && y<=yMax){
-                rects[ind]['onClick']();
+                onCollision(rects[ind]);
+            }else{
+                onNoCollision(rects[ind]);
             }
         }
+    };
+
+    this.checkClick = function(x, y){
+        this.checkCollisionWithRect(x, y, (rect)=>{rect.onClick();}, (rect)=>{});
+    };
+
+    this.checkHover = function(x, y){
+        this.checkCollisionWithRect(x, y, (rect)=>{
+            if(rect.hover){rect.actualColor = rect.hover;}
+        }, (rect)=>{rect.actualColor = rect.color;});
     };
 
     this.mousedown = function(e){
@@ -138,6 +152,17 @@ jsGames.service('gameScreenService', function() {
             this.checkClick(x, y);
         }
         this.refresh();
+    };
+
+    this.mousemove = function(e){
+        let coords = this.getCursorPosition(e);
+        if(coords!=null){
+            let x = coords['x'];
+            let y = coords['y'];
+            this.lastMousePos.x = x; this.lastMousePos.y = y;
+            this.checkHover(x, y);
+            this.refresh();
+        }
     };
 });
 
@@ -150,6 +175,7 @@ jsGames.directive("gameScreen", ['gameScreenService', function(gameScreenService
         link: function(scope, element, attr){
             gameScreenService.setGameScreen(element[0], attr.width, attr.height);
             element.bind('mousedown', (e)=>{gameScreenService.mousedown(e);});
+            element.bind('mousemove', (e)=>{gameScreenService.mousemove(e);});
         }
     };
   }]);

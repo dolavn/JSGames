@@ -1,9 +1,9 @@
-const colors = [{name:'red', hexCode: '#c20003'},
-                {name:'blue', hexCode: '#0400ff'},
-                {name:'green', hexCode: '#129e00'},
-                {name:'cyan', hexCode: '#00a6ff'},
-                {name:'orange', hexCode: '#ff8c00'},
-                {name:'purple', hexCode: '#9500ff'}]
+const colors = [{name:'red', hexCode: '#c20003', hover: '#ee0003'},
+                {name:'blue', hexCode: '#0400ff', hover: '#4440ff'},
+                {name:'green', hexCode: '#129e00', hover: '#12be00'},
+                {name:'cyan', hexCode: '#00a6ff', hover: '#20c6ff'},
+                {name:'orange', hexCode: '#ff8c00', hover: '#ffcc00'},
+                {name:'purple', hexCode: '#9500ff', hover: '#d540ff'}]
 
 var lines = {};
 var gameStarted = false;
@@ -12,6 +12,11 @@ let modals;
 let gameScreen;
 
 const canvasHeight = 800;
+const sendButtonX = 550;
+const sendButtonY = 700;
+const sendButtonWidth = 150;
+const sendButtonHeight = 50;
+const sendButtonLabelSize = 25;
 const canvasWidth = 1200;
 const rectSize = 50;
 const selectionRect = 80;
@@ -23,10 +28,11 @@ const emptyColor = '#dddddd';
 const orderedColor = '#111122';
 const unorderedColor = '#ffffff';
 let selectedColor = -1;
+let sendButtonInd;
 let selectionRectInd, sendButton,enterCodeLabelInd, otherPlayerLabelInd;
 const CHOOSE_CODE_TXT = 'בחר את הקוד';
 const WRONG_CODE_TXT = 'יש להזין את כל חלקי הקוד';
-const GUESS_CODE_TXT = 'הזן את הניחוש';
+const SEND_TXT = 'שלח';
 const VICTORY_TXT = 'כל הכבוד ניצחת!';
 const WON_TXT = 'ניצח!';
 const NO_MORE_TURNS_TXT = 'לא נותרו עוד תורות!';
@@ -54,7 +60,7 @@ function createSelectionLine(lineInd, x, y, enabled=true){
                 }
                 let color = colors[selectedColor]['hexCode'];
                 lines[lineInd]['code'][codeInd] = selectedColor;
-                gameScreen.updateRect(rectInd, {'color': color});
+                gameScreen.updateRect(rectInd, {'color': color, 'hover': color});
                 socket.emit('mousePress', {'line': lineInd, 'rect': codeInd, 'color': color});
             }
         }
@@ -80,9 +86,9 @@ function createLine(lineInd, x, y, enabled=true){
                               rectSize/4, rectSize/4, bgColor, 'flags' + lineInd + i, function(){}, true);
     }
     if(enabled){
-        sendButton.onclick = function(){
+        gameScreen.updateRect(sendButtonInd, {'onClick': function(){
             sendGuess(lineInd);
-        };
+        }});
     }
 }
 
@@ -96,8 +102,9 @@ function initColorPallette(){
         }
 
         gameScreen.createRect(rectMargin, rectMargin+(rectSize+rectMargin)*index,
-                              rectSize, rectSize, colors[index]['hexCode'],
-                              colors[index]['name'], getSelectFunction(index));        
+                              rectSize, rectSize, colors[index].hexCode,
+                              colors[index].name, getSelectFunction(index), false,
+                              colors[index].hover);        
     }
 }
 
@@ -220,7 +227,7 @@ function finishIteration(ind){
         if(ordered<codeLength){
             createLine(ind+1, xPlayer, yLineInit-(ind+2)*yLineMargin);
         }else{
-            sendButton.onClick = ()=>{};
+            gameScreen.updateRect(sendButtonInd, {'onClick': ()=>{}});
         }
     };
 }
@@ -271,9 +278,7 @@ function enterCodeScreen(){
     enterCodeLabelInd = gameScreen.getLabelsNum();
     gameScreen.createLabel(xPlayer, 550, CHOOSE_CODE_TXT, 'black',largeTextSize);
     createInputLine(xPlayer, yLineInit);
-    sendButton.onclick = function(){
-        sendCode();
-    };
+    gameScreen.updateRect(sendButtonInd, {'onClick': ()=>{sendCode();}});
 }
 
 function createOtherLine(lineInd){
@@ -339,7 +344,7 @@ function sendCode(){
         showPopup(WRONG_CODE_TXT);
         return;                
     }
-    sendButton.onClick = ()=>{};
+    gameScreen.updateRect(sendButtonInd, {'onClick': ()=>{}});
     socket.emit('code', {'code': lines['input']['code']});
     removeLine('input');
     gameScreen.updateLabel(enterCodeLabelInd, {'text': WAITING_FOR_PLAYER_TXT});
@@ -354,17 +359,25 @@ function sendCode(){
     });
 }
 
+function createSendButton(){
+    gameScreen.createRect(sendButtonX, sendButtonY, sendButtonWidth, sendButtonHeight, emptyColor,
+                          'sendButton', ()=>{}, true, unorderedColor);
+    sendButtonInd = gameScreen.getRectsNum()-1;
+    gameScreen.createLabel(sendButtonX+(sendButtonWidth/3), sendButtonY+(sendButtonHeight/3)+(sendButtonLabelSize/2), 
+                           SEND_TXT, orderedColor, sendButtonLabelSize); 
+}
+
 function startMasterMind(){
+    createSendButton();
     socket.emit('gameType', 'mastermind');  
     initCanvasMastermind();
-    sendButton = document.getElementById('sendButton')
     enterCodeScreen();
     gameScreen.refresh();
 }
 
 function initModals(){
     let registeredModals = 0;
-    function registerModal(){
+    function registerModal(){ //probably should use better design than that
         registeredModals++;
         if(registeredModals==2){
             startMasterMind();

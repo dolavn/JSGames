@@ -67,7 +67,7 @@ jsGames.controller("wordGuessController", function($scope, socketService,
                function(e, args){
                    $scope.initModals(args);
                 });
-    $scope.registerModal = function(args){
+    $scope.registerModal = function(args){ //probably should use better design than that
         $scope.modalsInitialized++;
         if($scope.modalsInitialized==2){
             $scope.initGame(args);
